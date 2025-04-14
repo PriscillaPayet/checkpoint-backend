@@ -1,9 +1,16 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { Length } from "class-validator";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
+import { IsOptional, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 
 @Entity()
-@ObjectType() //pour la lecture d'une ad
+@ObjectType()
+@Unique(["code"])
 export class Country extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
@@ -23,10 +30,9 @@ export class Country extends BaseEntity {
   @Field()
   emoji!: string;
 
-  @Column()
-  @Field()
-  @Length(2, 50)
-  continentCode!: string;
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  continentCode?: string;
 }
 
 @InputType()
@@ -42,25 +48,28 @@ export class CountryCreateInput {
   @Field()
   emoji!: string;
 
-  @Field()
-  @Length(2, 50)
-  continentCode!: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  continentCode?: string;
 }
 
 @InputType()
 export class CountryUpdateInput {
   @Field({ nullable: true })
   @Length(2, 50)
+  @IsOptional()
   code?: string;
 
   @Field({ nullable: true })
   @Length(2, 100)
+  @IsOptional()
   name?: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   emoji?: string;
 
   @Field({ nullable: true })
-  @Length(2, 50)
+  @IsOptional()
   continentCode?: string;
 }

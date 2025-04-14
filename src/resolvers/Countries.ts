@@ -51,4 +51,32 @@ export class CountriesResolver {
       return newCountry;
     }
   }
+
+  @Mutation(() => Country, { nullable: true })
+  async updateCountry(
+    @Arg("id", () => ID) id: number,
+    @Arg("data", () => CountryUpdateInput) data: CountryUpdateInput
+  ): Promise<Country | null> {
+    const country = await Country.findOne({ where: { id } });
+    if (!country) return null;
+
+    Object.assign(country, data);
+
+    const errors = await validate(country);
+    if (errors.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+    }
+
+    await country.save();
+    return country;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteCountry(@Arg("id", () => ID) id: number): Promise<boolean> {
+    const country = await Country.findOne({ where: { id } });
+    if (!country) return false;
+
+    await country.remove();
+    return true;
+  }
 }
