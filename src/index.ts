@@ -1,0 +1,33 @@
+import "reflect-metadata";
+import { datasource } from "./datasource";
+import { buildSchema } from "type-graphql";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { CountriesResolver } from "./resolvers/Countries";
+
+// Démarrage du serveur une fois que la datasource est connectée
+async function initialize() {
+  await datasource.initialize();
+  console.log("Datasource connected");
+
+  const schema = await buildSchema({
+    resolvers: [CountriesResolver],
+  });
+
+  const server = new ApolloServer({ schema });
+
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 5000 },
+    //créer un contexte de résolution et d'y injecter req et res
+    context: async ({ req, res }) => {
+      return {
+        req,
+        res,
+      };
+    },
+  });
+
+  console.log("Server is running on port 5000 🚀");
+}
+
+initialize();
